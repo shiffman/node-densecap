@@ -11,7 +11,10 @@ var fs = require('fs');
 
 // "body parser" is need to deal with post requests
 var bodyParser = require('body-parser');
-app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.json({
+  // For large files
+  limit: '10mb'
+}));
 app.use(bodyParser.urlencoded({
   extended: true
 })); // support encoded bodies
@@ -44,35 +47,29 @@ app.post('/densecap', densecap);
 function densecap(request, response) {
   let image = request.body.base64;
   let base64data = image.replace('data:image/png;base64,', '');
-  fs.writeFile('image.png', base64data, { encoding: 'base64' }, (err) => {
+  fs.writeFile('image.png', base64data, {
+    encoding: 'base64'
+  }, (err) => {
     if (err) throw err;
     console.log('Saved');
-    var reply = {
-      file: "written"
-    }
-    // Send it back
-    response.send(reply);
-  });
+    var cmd = 'th run_model.lua -input_image image.png -gpu -1 -output_vis_dir results';
+    exec(cmd, processing);
 
-  // var text = req.body.text;
-  // var category = req.body.category;
-  // var cmd = 'th run_model.lua -input_image imgs/elephant.jpg -gpu -1 -output_vis_dir results';
-  // exec(cmd, processing);
-  //
-  // // Callback for command line process
-  // function processing(error, stdout, stderr) {
-  //   if (error) {
-  //     console.log(error);
-  //   }
-  //   if (stderr) {
-  //     console.log(stderr);
-  //   }
-  //
-  //   if (stdout) {
-  //     console.log(stdout);
-  //     var output = fs.readFileSync('results/results.json');
-  //     var results = JSON.parse(output);
-  //     response.send(results);
-  //   }
-  // }
+    // Callback for command line process
+    function processing(error, stdout, stderr) {
+      if (error) {
+        console.log(error);
+      }
+      if (stderr) {
+        console.log(stderr);
+      }
+
+      if (stdout) {
+        console.log(stdout);
+        var output = fs.readFileSync('results/results.json');
+        var results = JSON.parse(output);
+        response.send(results);
+      }
+    }
+  });
 }
