@@ -1,0 +1,14 @@
+{
+  "name": "12_node_densecap",
+  "version": "1.0.0",
+  "description": "Example of node with densecap",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Shiffman",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
