@@ -1,3 +1,5 @@
+-- From: https://github.com/jcjohnson/densecap
+
 require 'torch'
 require 'nn'
 require 'image'
@@ -114,7 +116,7 @@ function lua_render_result(result, opt)
 end
 
 function get_input_images(opt)
-  -- utility function that figures out which images we should process 
+  -- utility function that figures out which images we should process
   -- and fetches all the raw image paths
   local image_paths = {}
   if opt.input_image ~= '' then
@@ -161,7 +163,7 @@ for k=1,num_process do
   local img_path = image_paths[k]
   print(string.format('%d/%d processing image %s', k, num_process, img_path))
   -- run the model on the image and obtain results
-  local result = run_image(model, img_path, opt, dtype)  
+  local result = run_image(model, img_path, opt, dtype)
   -- handle output serialization: either to directory or for pretty html vis
   if opt.output_dir ~= '' then
     local img_out = lua_render_result(result, opt)
