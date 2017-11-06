@@ -9,13 +9,15 @@ var exec = require('child_process').exec;
 // For reading image files
 var fs = require('fs');
 
+
 // "body parser" is need to deal with post requests
 var bodyParser = require('body-parser');
 app.use(bodyParser.json({
-  // For large files
-  limit: '10mb'
+  limit: '50mb'  
 }));
+
 app.use(bodyParser.urlencoded({
+  limit: '50mb',
   extended: true
 })); // support encoded bodies
 
