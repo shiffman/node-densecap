@@ -17,7 +17,7 @@ function instructions() {
 function setup() {
   // Create a canvas
   let canvas = createCanvas(710, 400);
-    
+
   // Draw instructions
   instructions();
 
@@ -37,12 +37,14 @@ function setup() {
         img.hide();
         background(0);
         image(img, 0, 0);
-        // Get the base 64 encoding
+        // Get the base 64 encoding and pass the image width
         let data = {
-          base64: canvas.elt.toDataURL()
+          width: canvas.width,
+          base64: canvas.elt.toDataURL(),
+          gpu: false
         }
 
-        // Post the base64 image to the server 
+        // Post the base64 image to the server
         httpPost('/densecap', data, gotData, error);
 
         // Got the result
@@ -61,7 +63,7 @@ function setup() {
             let colA = color(i * (360 / num), 100, 100, 10);
             // Get the box info
             let bx = results.boxes[i];
-            
+
             // Draw the box
             stroke(col);
             fill(colA);

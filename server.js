@@ -29,7 +29,7 @@ app.use(bodyParser.json({
 app.use(bodyParser.urlencoded({
   limit: '50mb', // Because we have images
   extended: true
-})); 
+}));
 
 // This is for hosting files
 app.use(express.static('public'));
@@ -52,6 +52,9 @@ app.post('/densecap', densecap);
 function densecap(request, response) {
   // Grab the base64 content
   let image = request.body.base64;
+  let w = request.body.width;
+  let gpu = request.body.gpu;
+
   // Strip out the headers
   let base64data = image.replace('data:image/png;base64,', '');
 
@@ -65,7 +68,12 @@ function densecap(request, response) {
     console.log('Saved');
 
     // Execute the densecap command
-    var cmd = 'th run_model.lua -input_image image.png -gpu -1 -output_vis_dir results';
+    var cmd = 'th run_model.lua -input_image image.png -output_vis_dir results';
+    cmd += ' -image_size ' + w;
+    if (!gpu) {
+      cmd += ' -gpu -1';
+    }
+    console.log(cmd);
     exec(cmd, (error, stdout, stderr) => {
       // Checking for errors
       if (error) {
