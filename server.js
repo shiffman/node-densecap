@@ -1,25 +1,35 @@
+// Densecap and Node to p5 Example
+// Daniel Shiffman
+// http://shiffman.net/a2z
+// https://github.com/shiffman/node-densecap
+// https://github.com/shiffman/A2Z-F17
+
 // Using express: http://expressjs.com/
-var express = require('express');
+const express = require('express');
+
 // Create the app
-var app = express();
+const app = express();
 
 // Require child_process for triggering script for Processing
-var exec = require('child_process').exec;
+const exec = require('child_process').exec;
 
 // For reading image files
-var fs = require('fs');
+const fs = require('fs');
 
 
 // "body parser" is need to deal with post requests
-var bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
+
+// Support JSON bodies
 app.use(bodyParser.json({
-  limit: '50mb'  
+  limit: '50mb'  // Because we have images
 }));
 
+// Support encoded bodies
 app.use(bodyParser.urlencoded({
-  limit: '50mb',
+  limit: '50mb', // Because we have images
   extended: true
-})); // support encoded bodies
+})); 
 
 // This is for hosting files
 app.use(express.static('public'));
@@ -35,43 +45,44 @@ function listen() {
 }
 
 
-
-
-function cleanup(base64) {
-  var matches = base64.match(/^data:.*?;base64,(.+)$/);
-  return matches[1];
-}
-
-// This is a post for training
+// This is a post receiving an image and returning captions
 app.post('/densecap', densecap);
 
 
 function densecap(request, response) {
+  // Grab the base64 content
   let image = request.body.base64;
+  // Strip out the headers
   let base64data = image.replace('data:image/png;base64,', '');
+
+  // Write it to a file
+  // We have to do this for densecap to read it
   fs.writeFile('image.png', base64data, {
     encoding: 'base64'
   }, (err) => {
+    // If there was a problem writing the file
     if (err) throw err;
     console.log('Saved');
-    var cmd = 'th run_model.lua -input_image image.png -gpu -1 -output_vis_dir results';
-    exec(cmd, processing);
 
-    // Callback for command line process
-    function processing(error, stdout, stderr) {
+    // Execute the densecap command
+    var cmd = 'th run_model.lua -input_image image.png -gpu -1 -output_vis_dir results';
+    exec(cmd, (error, stdout, stderr) => {
+      // Checking for errors
       if (error) {
         console.log(error);
       }
       if (stderr) {
         console.log(stderr);
       }
-
+      // This is when it's finished
       if (stdout) {
         console.log(stdout);
+        // Read the JSON results
         var output = fs.readFileSync('results/results.json');
         var results = JSON.parse(output);
+        // Send them back!
         response.send(results);
       }
-    }
+    });
   });
 }
