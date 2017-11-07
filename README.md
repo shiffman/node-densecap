@@ -6,6 +6,7 @@ A node example (maybe package at some point) to receive image from client and re
 2. Follow the [densecap installation instructions](https://github.com/jcjohnson/densecap#installation) to install dependencies.
 3. Clone repo. Navigate terminal to the `node-densecap` directory.
 4. Download the "pre-trained model" file (1GB!)
+```
 ./download_pretrained_model.sh
 ```
 5. Install Node packages
